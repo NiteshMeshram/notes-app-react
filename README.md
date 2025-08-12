@@ -24,18 +24,21 @@ This is a **TypeScript** based notes application that allows users to create, ed
 
 2. Install dependencies:
 
-   ```npm install
+   ```bash
+   npm install
 
    ```
 
 3. Running the App:
 
-   ```npm start
+   ```bash
+   npm start
 
    ```
 
 4. Open in browser
 
-   ```http://localhost:3000
+   ```bash
+   http://localhost:3000
 
    ```
