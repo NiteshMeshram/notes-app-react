@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a **TypeScript** based notes application that allows users to create, edit, delete, and view notes with ease. Notes are saved locally for persistence across sessions. The app is designed with clean architecture and modular components for maintainability and scalability.
+This is a **TypeScript** based notes application that allows users to create, **edit, delete, and view** notes with ease. Notes are saved locally for persistence across sessions. The app is designed with clean architecture and modular components for maintainability and scalability.
 
 ## Features
 
@@ -18,7 +18,7 @@ This is a **TypeScript** based notes application that allows users to create, ed
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/your-repo-name.git
+   git clone https://github.com/NiteshMeshram/notes-app-react
    cd your-repo-name
    ```
 
