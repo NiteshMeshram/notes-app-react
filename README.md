@@ -32,7 +32,7 @@ This is a **TypeScript** based notes application that allows users to create, **
 3. Running the App:
 
    ```bash
-   npm start
+   npm run dev
 
    ```
 
