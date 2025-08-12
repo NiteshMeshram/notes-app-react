@@ -7,7 +7,7 @@ const NOTES_KEY = "my_notes_app";
  */
 export function getNotes(): Note[] {
   const data = localStorage.getItem(NOTES_KEY);
-  return data ? JSON.parse(data) as Note[] : [];
+  return data ? (JSON.parse(data) as Note[]) : [];
 }
 
 /**
@@ -30,7 +30,18 @@ export function addNote(note: Note): void {
  * Delete a note by ID
  */
 export function deleteNote(id: string): void {
-  const notes = getNotes().filter(n => n.id !== id);
+  const notes = getNotes().filter((n) => n.id !== id);
+  saveNotes(notes);
+}
+
+/**
+ * Edit a note by ID
+ */
+
+export function editNote(updatedNote: Note): void {
+  const notes = getNotes().map((note) =>
+    note.id === updatedNote.id ? updatedNote : note
+  );
   saveNotes(notes);
 }
 
@@ -45,5 +56,5 @@ export default {
   getNotes,
   addNote,
   deleteNote,
-  clearNotes
+  clearNotes,
 };

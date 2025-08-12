@@ -1,6 +1,7 @@
 .flex-container {
   display: flex; /* Make it a flex container */
   justify-content: stretch; /* Default: items fill the line */
+  gap: 20px; /* spacing between columns */
 }
 
 .column {
@@ -9,6 +10,11 @@
   box-sizing: border-box; /* Ensure padding doesn't break equal width */
   text-align: left; /* text starts from left inside each column */
   min-width: 300px;
+  flex: 0 0 60%; /* Increase left panel width to 60% */
+}
+
+.features-column {
+  flex: 1; /* Remaining width for right panel */
 }
 
 /* Note container */
@@ -60,7 +66,16 @@
 
 /* Date label */
 .note__date {
-  white-space: nowrap;
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.4); /* Light/transparent for watermark effect */
+  pointer-events: none; /* Prevent click interactions */
+}
+
+.note {
+  position: relative; /* Required so .note__date is positioned relative to the note */
 }
 
 /* Actions (Edit | Delete) */
@@ -199,4 +214,34 @@ button:hover {
   background: #f3f4f6;
   border-color: #9ca3af;
   transform: translateY(-2px);
+}
+
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  max-width: 600px; /* max width for larger screens */
+}
+
+.add-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.add-btn:hover {
+  background-color: #45a049;
 }

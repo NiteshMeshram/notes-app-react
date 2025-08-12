@@ -1,7 +1,13 @@
 import React from "react";
 import type { Note } from "../model/Note";
 
-export default function NotesList({ notes }: { notes: Note[] }) {
+interface NotesListProps {
+  notes: Note[];
+  onDelete: (id: string) => void;
+  onEdit: (note: Note) => void;
+}
+
+export default function NotesList({ notes, onDelete, onEdit }: NotesListProps) {
   if (!notes || notes.length === 0) {
     return (
       <article key="no-notes" className="no-notes-message">
@@ -9,11 +15,18 @@ export default function NotesList({ notes }: { notes: Note[] }) {
       </article>
     );
   }
-  console.log("Rendering NotesList with notes:", notes);
+
+  const sortedNotes = [...notes].sort((a, b) => {
+    return (
+      new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+    );
+  });
+
   return (
     <>
       <div>
-        <h2>Notes List</h2>
+        <h2>Notes List ({notes.length})</h2>
+
         <div>
           {notes.map((note) => (
             <article key={note.id} className="note">
@@ -21,21 +34,21 @@ export default function NotesList({ notes }: { notes: Note[] }) {
               <header className="note__header">
                 <h3 className="note__title">{note.title}</h3>
                 <div className="note__meta">
-                  <span className="note__date">
+                  {/* <span className="note__date">
                     Date:{" "}
                     {new Date(note.dateCreated).toLocaleDateString("en-GB")}
-                  </span>
+                  </span> */}
                   <div className="note__actions">
                     <button
                       className="note__action"
-                      onClick={() => console.log(`Edit note ID: ${note.id}`)}
+                      onClick={() => onEdit(note)}
                     >
                       Edit
                     </button>
                     <span>|</span>
                     <button
                       className="note__action note__action--delete"
-                      onClick={() => console.log(`Delete note ID: ${note.id}`)}
+                      onClick={() => onDelete(note.id)}
                     >
                       Delete
                     </button>
@@ -45,6 +58,9 @@ export default function NotesList({ notes }: { notes: Note[] }) {
 
               {/* Second Row */}
               <p className="note__body">{note.content}</p>
+              <span className="note__date">
+                {new Date(note.dateCreated).toLocaleDateString("en-GB")}
+              </span>
             </article>
           ))}
         </div>

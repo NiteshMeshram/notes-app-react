@@ -1,45 +1,50 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type { Note } from "../model/Note";
 import { addNote } from "../utils/localStorageUtils";
 
 interface NoteFormProps {
+  noteToEdit?: Note;
   onSave: (note: Note) => void;
+  onCancel: () => void; // Optional cancel callback
 }
 
-export default function NoteForm({ onSave }: NoteFormProps) {
-  const [title, setTitle] = React.useState("");
-  const [content, setContent] = React.useState("");
-  const [notes, setNotes] = React.useState<Note[]>([]);
+export default function NoteForm({
+  noteToEdit,
+  onSave,
+  onCancel,
+}: NoteFormProps) {
+  const [title, setTitle] = useState(noteToEdit?.title || "");
+  const [content, setContent] = useState(noteToEdit?.content || "");
 
   const clearForm = () => {
     setTitle("");
     setContent("");
   };
 
+  // Sync state when noteToEdit changes
+  useEffect(() => {
+    if (noteToEdit) {
+      setTitle(noteToEdit.title);
+      setContent(noteToEdit.content);
+    }
+  }, [noteToEdit]);
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const newNote = {
-      title,
-      content,
-      dateCreated: new Date().toISOString(),
-      id: Math.random().toString(36).substring(2, 15), // Generate a random ID
+    const newNote: Note = {
+      id: noteToEdit?.id ?? crypto.randomUUID(), // more robust than Math.random
+      title: title.trim(),
+      content: content.trim(),
+      dateCreated: noteToEdit?.dateCreated ?? new Date().toISOString(),
     };
-
-    // addNote(newNote); // Save the new note to localStorage
-    // setNotes((prevNotes) => [...prevNotes, newNote]); // updates UI instantly
-    // setNotes((prevNotes) => {
-    //   const updatedNotes = [...prevNotes, newNote];
-    //   console.log("Note saved Updated:", updatedNotes);
-    //   return updatedNotes;
-    // });
     onSave(newNote);
     clearForm();
   };
 
   return (
     <div>
-      <h2>Create Note</h2>
+      <h2>{noteToEdit ? "Edit Note" : "Create Note"}</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="title">Title:</label>
@@ -62,7 +67,18 @@ export default function NoteForm({ onSave }: NoteFormProps) {
             onChange={(e) => setContent(e.target.value)} // update state on change
           ></textarea>
         </div>
-        <button type="submit">Save Note</button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button type="submit">
+            {noteToEdit ? "Update Note" : "Save Note"}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{ background: "#ccc" }}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
