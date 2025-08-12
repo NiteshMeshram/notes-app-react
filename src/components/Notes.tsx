@@ -10,6 +10,9 @@ import {
 } from "../utils/localStorageUtils";
 import type { Note } from "../model/Note";
 import NotesList from "./NotesList";
+import Alert from "./Alert";
+
+type AlertType = "success" | "error" | "info";
 
 export default function Notes() {
   const items: string[] = [
@@ -25,12 +28,17 @@ export default function Notes() {
   const [notes, setNotes] = React.useState<Note[]>([]);
   const [noteToEdit, setNoteToEdit] = useState<Note | undefined>(undefined);
   const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
+  const [alert, setAlert] = useState({ message: "", type: "" });
 
   useEffect(() => {
+    refreshNotes();
+  }, []);
+
+  const refreshNotes = () => {
     const storedNotes = getNotes();
     setNotes(storedNotes);
     setFilteredNotes(storedNotes);
-  }, []);
+  };
 
   const handleAddNote = (noteData: Omit<Note, "id">) => {
     if (noteToEdit) {
@@ -41,18 +49,27 @@ export default function Notes() {
       const newNote: Note = { id: crypto.randomUUID(), ...noteData };
       addNote(newNote);
     }
-    setNotes(getNotes());
+    refreshNotes(); // refresh notes from localStorage
     setShowForm(false);
+    showAlert(
+      `Note ${noteToEdit ? "updated" : "added"} successfully!`,
+      "success"
+    );
   };
 
   const handleDelete = (id: string) => {
     deleteNote(id); // remove from localStorage
-    setNotes(getNotes()); // refresh from localStorage
+    refreshNotes(); // refresh notes from localStorage
+    showAlert("Note deleted successfully!", "error");
   };
 
   const handleEditClick = (note: Note) => {
     setNoteToEdit(note);
     setShowForm(true);
+    //  showAlert(
+    //   `Note ${noteToEdit ? "updated" : "added"} successfully!`,
+    //   "success"
+    // );
   };
 
   const handleSearch = (term: string) => {
@@ -70,8 +87,17 @@ export default function Notes() {
     );
   };
 
+  const showAlert = (message: string, type: string) => {
+    setAlert({ message, type });
+  };
+
   return (
     <div>
+      <Alert
+        message={alert.message}
+        type={alert.type as AlertType} // cast if you are sure
+        onClose={() => setAlert({ message: "", type: "" })}
+      />
       <p>Notes Component</p> {/* Keep this outside the flex container */}
       <div className="flex-container">
         <div className="column">
