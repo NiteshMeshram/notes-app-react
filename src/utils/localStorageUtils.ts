@@ -30,7 +30,7 @@ export function addNote(note: Note): void {
  * Delete a note by ID
  */
 export function deleteNote(id: string): void {
-  const notes = getNotes().filter((n) => n.id !== id);
+  const notes = getNotes().filter((n) => n._id !== id);
   saveNotes(notes);
 }
 
@@ -40,7 +40,7 @@ export function deleteNote(id: string): void {
 
 export function editNote(updatedNote: Note): void {
   const notes = getNotes().map((note) =>
-    note.id === updatedNote.id ? updatedNote : note
+    note._id === updatedNote._id ? updatedNote : note
   );
   saveNotes(notes);
 }

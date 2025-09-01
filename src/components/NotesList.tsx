@@ -3,7 +3,7 @@ import type { Note } from "../model/Note";
 
 interface NotesListProps {
   notes: Note[];
-  onDelete: (id: string) => void;
+  onDelete: (note: Note) => void;
   onEdit: (note: Note) => void;
 }
 
@@ -29,7 +29,7 @@ export default function NotesList({ notes, onDelete, onEdit }: NotesListProps) {
 
         <div>
           {notes.map((note) => (
-            <article key={note.id} className="note">
+            <article key={note._id} className="note">
               {/* First Row */}
               <header className="note__header">
                 <h3 className="note__title">{note.title}</h3>
@@ -48,7 +48,7 @@ export default function NotesList({ notes, onDelete, onEdit }: NotesListProps) {
                     <span>|</span>
                     <button
                       className="note__action note__action--delete"
-                      onClick={() => onDelete(note.id)}
+                      onClick={() => onDelete(note)}
                     >
                       Delete
                     </button>

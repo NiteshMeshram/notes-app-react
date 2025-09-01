@@ -1,5 +1,5 @@
+
 import React, { useEffect, useState } from "react";
-// import "./notes.css";
 import "../assets/notes.css"; // Ensure this path is correct based on your project structure
 import NoteForm from "./NoteForm";
 import {
@@ -8,9 +8,11 @@ import {
   editNote,
   getNotes,
 } from "../utils/localStorageUtils";
+
 import type { Note } from "../model/Note";
 import NotesList from "./NotesList";
 import Alert from "./Alert";
+import { DBNotesService, LocalNotesService } from "../utils/notesService";
 
 type AlertType = "success" | "error" | "info";
 
@@ -30,38 +32,80 @@ export default function Notes() {
   const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
   const [alert, setAlert] = useState({ message: "", type: "" });
 
+  
+   const [useDB, setUseDB] = useState(false);
+   // choose data source at runtime
+const service = useDB ? DBNotesService : LocalNotesService;
+
   useEffect(() => {
     refreshNotes();
-  }, []);
+  }, [useDB]);
 
-  const refreshNotes = () => {
-    const storedNotes = getNotes();
-    setNotes(storedNotes);
-    setFilteredNotes(storedNotes);
-  };
 
-  const handleAddNote = (noteData: Omit<Note, "id">) => {
+
+const refreshNotes = async () => {
+  try {
+    const data = await service.getNotes(); // uses DB or Local based on useDB
+    setNotes(data);
+    setFilteredNotes(data);
+  } catch (err) {
+    console.error("Error loading notes:", err);
+    showAlert("Failed to load notes", "error");
+  }
+};
+  
+// Accept only fields coming from the form
+const handleAddNote = async (noteData: { title: string; content: string }) => {
+  try {
     if (noteToEdit) {
-      const updatedNote: Note = { ...noteToEdit, ...noteData }; // keep old id
-      editNote(updatedNote);
+      // UPDATE
+      const updated = await service.editNote({ ...noteToEdit, ...noteData }); // must include _id
+      setNotes(prev => prev.map(n => (n._id === updated._id ? updated : n)));
+      setFilteredNotes(prev => prev.map(n => (n._id === updated._id ? updated : n)));
+      showAlert("Note updated successfully!", "success");
       setNoteToEdit(undefined);
-    } else {
-      const newNote: Note = { id: crypto.randomUUID(), ...noteData };
-      addNote(newNote);
+      setShowForm(false);
+      return;
     }
-    refreshNotes(); // refresh notes from localStorage
-    setShowForm(false);
-    showAlert(
-      `Note ${noteToEdit ? "updated" : "added"} successfully!`,
-      "success"
-    );
-  };
 
-  const handleDelete = (id: string) => {
-    deleteNote(id); // remove from localStorage
-    refreshNotes(); // refresh notes from localStorage
-    showAlert("Note deleted successfully!", "error");
-  };
+    // CREATE
+    const created = await service.addNote(noteData); // service will generate _id (Local) or DB will return it
+    setNotes(prev => [...prev, created]);
+    setFilteredNotes(prev => [...prev, created]);
+    showAlert("Note added successfully!", "success");
+    setShowForm(false);
+  } catch (err) {
+    console.error("Save failed:", err);
+    showAlert(`Failed to ${noteToEdit ? "update" : "add"} note`, "error");
+  }
+};
+
+  // const handleDelete = (note: Note) => {
+
+  //   // delete from backend
+  //   // deleteDBNote(note); // remove from backend
+
+  //   deleteNote(note._id); // remove from localStorage
+
+  //   refreshNotes(); // refresh notes from localStorage
+  //   showAlert("Note deleted successfully!", "error");
+  // };
+
+  // Notes.tsx
+const handleDelete = async (note: Note) => {
+  try {
+    await service.deleteNote(note); // DBNotesService or LocalNotesService
+
+    // Optimistic UI update (no need to refetch)
+    setNotes(prev => prev.filter(n => n._id !== note._id));
+    setFilteredNotes(prev => prev.filter(n => n._id !== note._id));
+
+    showAlert("Note deleted successfully!", "success");
+  } catch (err) {
+    console.error("Delete failed:", err);
+    showAlert("Failed to delete note", "error");
+  }
+};
 
   const handleEditClick = (note: Note) => {
     setNoteToEdit(note);
@@ -99,6 +143,14 @@ export default function Notes() {
         onClose={() => setAlert({ message: "", type: "" })}
       />
       <p>Notes Component</p> {/* Keep this outside the flex container */}
+        <h1>Notes ({useDB ? "DB" : "LocalStorage"})</h1>
+      <label>
+        <input
+          type="checkbox"
+          checked={useDB}
+          onChange={e => setUseDB(e.target.checked)}
+        /> Use DB
+      </label>
       <div className="flex-container">
         <div className="column">
           <div className="notes-header">

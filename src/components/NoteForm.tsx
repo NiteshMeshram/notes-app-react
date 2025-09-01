@@ -32,8 +32,9 @@ export default function NoteForm({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
+    const noteId = crypto.randomUUID()
     const newNote: Note = {
-      id: noteToEdit?.id ?? crypto.randomUUID(), // more robust than Math.random
+      _id: noteToEdit?._id ?  noteToEdit?._id : noteId, // more robust than Math.random
       title: title.trim(),
       content: content.trim(),
       dateCreated: noteToEdit?.dateCreated ?? new Date().toISOString(),
